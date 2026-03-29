@@ -1,0 +1,31 @@
+﻿≡ƒº¬ MESSY INPUT TEST ΓÇö Testing AI Fallback...
+
+Testing: Messy LMVT (no formula format)
+  Input: "Prove that at least once the car's instantaneous speed is 60 mph during a 2-hour..."
+  Γ¥î FAIL
+  Answer: Parsing Error
+  Error: Error processing input: LMVT parsing error: Format: f(x) = <expr> on [a, b]
+
+Testing: Messy Rolle's (informal, no interval notation)
+  Input: "Temperature T of a rod between points 0 and 4 is T(x)=x^3-6x^2+11x-6. The endpoi..."
+  Γ¥î FAIL
+  Answer: Parsing Error
+  Error: Error processing input: Unable to parse or solve this Rolle's Theorem question. Error: Could not parse Rolle's question format.
+
+Testing: Messy Integration (pure English, no symbols)
+  Input: "Calculate the integral of x squared times exponential of x from zero to two..."
+  Γ£à PASS (Direct Solve)
+  Answer: Use alternating sum of $u^{(k)}v_{k+1}$ and add $+ C$.
+
+Testing: Messy Euler's (vague wording)
+  Input: "Show that x cubed plus y cubed satisfies euler theorem for homogeneous functions..."
+  Γ£à PASS (Direct Solve)
+  Answer: Verified: x f_x + y f_y = 0f. \text{ Degree: } 0
+
+Testing: Messy Lagrange (informal constraints)
+  Input: "Find where f = xy is maximum if x plus y equals 10..."
+  Γ£à PASS (Direct Solve)
+  Answer: \text{Solve } \nabla f = \lambda \nabla g \text{ and the constraint to find optimal (x, y).}
+
+
+RESULTS: 3 PASSED, 2 FAILED out of 5

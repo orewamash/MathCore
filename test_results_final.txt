@@ -1,0 +1,28 @@
+Starting backend tests against http://localhost:3000/api/simulator...
+
+✅ [rolles-theorem] - PASSED (c \approx -9.3132e-11 \in (-2, 2))
+✅ [lmvt] - PASSED (c \approx 2 \in (1, 3))
+✅ [integration-by-parts] - PASSED (\int x * e^x\,dx = (x)(v) - \int v \cdot (1)\,dx + C)
+✅ [bernoullis-formula] - PASSED (\text{Apply alternating signs to } u^{(k)} \cdot v_{k+1} \text{ pairs and add } + C)
+✅ [double-integration] - PASSED (\text{Result} \approx 1)
+❌ [triple-integration] - FAILED / ERROR:
+   Q: ∫ 0^1 ∫ 0^1 ∫ 0^1 (xyz) dz dy dx
+   Final Answer Output: Parsing Error
+[
+  {
+    title: 'Solver Inference Error',
+    explanation: 'Error processing input: Triple integration parsing error: Undefined symbol xyz',
+    whyNote: 'Ensure your formatting is strictly mathematical unless the AI API key is working.'
+  }
+]
+---
+✅ [eulers-theorem] - PASSED (Verified: x f_x + y f_y = 3f. \text{ Degree: } 3)
+✅ [jacobian] - PASSED (J = r * (cos(theta) ^ 2 + sin(theta) ^ 2))
+✅ [maxima-minima] - PASSED (Critical points found at: (0, 0), (1, 1).)
+✅ [lagrange-multiplier] - PASSED (Extremum at (5, 5) with value 25.)
+✅ [gauss-jordan] - PASSED (x_{1} = 2, x_{2} = 3, x_{3} = -1)
+✅ [gauss-elimination] - PASSED (x_{1} = 2, \quad x_{2} = 3, \quad x_{3} = -1)
+✅ [lu-decomposition] - PASSED (L = \begin{pmatrix} 1 & 0 & 0 \\ 2 & 1 & 0 \\ 3 & 4 & 1 \end{pmatrix}, \quad U = \begin{pmatrix} 1 &)
+✅ [eigenvalues] - PASSED (\lambda_1 = 2, \quad \lambda_2 = -1)
+✅ [eigenvectors] - PASSED (\text{Eigenvectors found for each eigenvalue — see steps above.})
+✅ [cayley-hamilton] - PASSED (p(A) = A^2 - 5A + -2I = O \quad \checkmark)

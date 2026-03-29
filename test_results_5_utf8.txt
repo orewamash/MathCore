@@ -1,0 +1,18 @@
+﻿≡ƒÜÇ Starting Unit-by-Unit Mock Test (Round 2)...
+
+Testing Unit 1: LMVT (Train Problem)...
+Γ£à SUCCESS: c \approx 1.5003 \in (0, 3)
+-----------------------------------
+
+Testing Unit 2: Bernoulli (Charge Problem)...
+Γ£à SUCCESS: \text{Total Value} \approx 8313.39
+-----------------------------------
+
+Testing Unit 3: Euler's (Magnetic Field)...
+Γ£à SUCCESS: Verified: x f_x + y f_y = 1f. \text{ Degree: } 1
+-----------------------------------
+
+Testing Unit 3: Lagrange Multiplier (Machine Vision)...
+Γ£à SUCCESS: \text{Solve } \nabla f = \lambda \nabla g \text{ and the constraint to find optimal (x, y).}
+-----------------------------------
+

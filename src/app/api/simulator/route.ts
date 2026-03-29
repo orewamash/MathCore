@@ -1,102 +1,180 @@
-import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
-
-const client = new Anthropic();
+import { generateText } from "ai";
+import { google } from "@ai-sdk/google";
+import { solveGaussJordan } from "@/lib/solvers/gauss-jordan-solver";
+import { solveLUDecomposition, solveEigenvalues, solveEigenvectors, solveCayleyHamilton, solveGaussElimination } from "@/lib/solvers/matrix-solvers";
+import { solveRollesTheorem, solveEulerTheorem } from "@/lib/solvers/symbolic-solvers";
+import { 
+  solveLMVT, 
+  solveIntegrationByParts, 
+  solveBernoullisFormula, 
+  solveDoubleIntegration, 
+  solveTripleIntegration, 
+  solveJacobian, 
+  solveMaximaMinima, 
+  solveLagrangeMultiplier 
+} from "@/lib/solvers/calculus-solvers";
+import { getTopicContent } from "@/lib/content/topics";
 
 export async function POST(req: NextRequest) {
-  const { question, topic } = await req.json();
+  const { question, topic, mode } = await req.json();
 
   if (!question || !topic) {
     return NextResponse.json({ error: "Missing question or topic" }, { status: 400 });
   }
 
-  const systemPrompt = `
-You are a precise engineering mathematics tutor for the topic: "${topic}".
-Your job is to solve a student's question with crystal-clear step-by-step working.
-
-Respond ONLY with a valid JSON object in this exact structure:
-{
-  "theorem": "Name of the theorem or rule being applied",
-  "steps": [
-    {
-      "title": "Short name for this step",
-      "formula": "LaTeX formula if applicable, otherwise omit this field",
-      "explanation": "Plain English explanation of what was done",
-      "whyNote": "Optional: deeper reason why this step works"
-    }
-  ],
-  "finalAnswer": "LaTeX formula for the final answer"
-}
-
-Rules:
-- All formulas must be valid KaTeX-compatible LaTeX
-- Explain each step so a first-year engineering student understands it
-- Keep step titles short (3–6 words)
-- The finalAnswer must be the complete boxed result
-- Never include markdown, only pure JSON
-`;
-
-  // Check if API key exists
-  if (!process.env.ANTHROPIC_API_KEY) {
-    console.warn("ANTHROPIC_API_KEY is missing. Using mock solver.");
-    return NextResponse.json(generateMockSolution(topic, question));
-  }
-
   try {
-    const message = await client.messages.create({
-      model: "claude-3-5-sonnet-20240620",
-      max_tokens: 2000,
-      system: systemPrompt,
-      messages: [{ role: "user", content: question }],
-    });
+    let solution: any = null;
 
-    const text = message.content[0].type === "text" ? message.content[0].text : "";
+    const extractMatrix = (q: string) => {
+        if (q.includes("rows:")) return q.split("rows:")[1].trim();
+        const bracketMatch = q.match(/\[\[.+\]\]/);
+        if (bracketMatch) return bracketMatch[0];
+        return q;
+    };
 
-    // Strip any accidental markdown fences and find the first '{' and last '}'
-    const start = text.indexOf('{');
-    const end = text.lastIndexOf('}');
-    
-    if (start === -1 || end === -1) {
-        throw new Error("AI response did not contain valid JSON");
+    const runSolver = (q: string) => {
+      switch (topic) {
+        case "rolles-theorem": return solveRollesTheorem(q, mode);
+        case "lmvt": return solveLMVT(q, mode);
+        case "integration-by-parts": return solveIntegrationByParts(q, mode);
+        case "bernoullis-formula": return solveBernoullisFormula(q, mode);
+        case "double-integration": return solveDoubleIntegration(q, mode);
+        case "triple-integration": return solveTripleIntegration(q, mode);
+        case "eulers-theorem": return solveEulerTheorem(q, mode);
+        case "jacobian": return solveJacobian(q, mode);
+        case "maxima-minima": return solveMaximaMinima(q, mode);
+        case "lagrange-multiplier": return solveLagrangeMultiplier(q, mode);
+        case "gauss-jordan": return solveGaussJordan(extractMatrix(q));
+        case "gauss-elimination": return solveGaussElimination(extractMatrix(q));
+        case "lu-decomposition": return solveLUDecomposition(extractMatrix(q));
+        case "eigenvalues": return solveEigenvalues(extractMatrix(q));
+        case "eigenvectors": return solveEigenvectors(extractMatrix(q));
+        case "cayley-hamilton": return solveCayleyHamilton(extractMatrix(q));
+        default: return null;
+      }
+    };
+
+    try {
+      // 1. Attempt strict algorithmic rules first
+      solution = runSolver(question);
+    } catch (algError: any) {
+      // 2. Fallback to AI Translator on failure (only for non-matrix topics)
+      const isMatrixTopic = ["gauss-jordan", "gauss-elimination", "lu-decomposition", "eigenvalues", "eigenvectors", "cayley-hamilton", "jacobi-method", "gauss-seidel"].includes(topic);
+      
+      const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+
+      if (!isMatrixTopic && apiKey) {
+        console.log(`Algorithmic parsing failed for topic "${topic}". Attempting AI translation...`);
+        try {
+          const prompt = `You are a math extraction engine for the topic "${topic}". 
+Extract the mathematical formula and interval/constraints from the user's word problem.
+Normalization Rules:
+- If a function is v(t), s(t), etc., keep the original variable name: v(t) = <expr> on [a, b]
+- Intervals like (0,3) or [0,3] must be clearly specified.
+- Result must be a single string in the exact format shown below.
+- NO EXPLANATIONS. NO MARKDOWN. JUST THE FORMULA STRING.
+
+Required Output Formats:
+- rolles-theorem: f(x) = <expr> on [a, b]  (or v(t) = <expr> on [a, b])
+- lmvt: f(x) = <expr> on [a, b]  (or v(t) = <expr> on [a, b])
+- eulers-theorem: f(x,y) = <expr>
+- maxima-minima: f(x,y) = <expr>
+- jacobian: x = <expr>, y = <expr>
+- lagrange-multiplier: f(x,y) = <expr> subject to <constraint_expr> = 0
+- double-integration: ∫a^b ∫c^d <expr> dy dx
+- triple-integration: ∫a^b ∫c^d ∫e^f <expr> dz dy dx
+- integration-by-parts: integrate <expr> dx  (add "from a to b" if bounds exist)
+- bernoullis-formula: integrate <expr> dx  (add "from a to b" if bounds exist)
+
+User Word Problem: "${question}"`;
+
+          const googleProvider = google('gemini-2.0-flash');
+
+          const response = await generateText({
+             model: googleProvider,
+             prompt: prompt,
+             maxRetries: 1,
+          });
+
+          if (response.text) {
+             const translatedQuestion = response.text.trim().replace(/`/g, '').replace(/\n/g, ' ');
+             console.log(`AI Translated: ${translatedQuestion}`);
+             solution = runSolver(translatedQuestion);
+             
+             if (solution && solution.steps) {
+                 solution.steps.unshift({
+                     title: "AI Translation",
+                     explanation: `Interpreting word problem into mathematical structure:`,
+                     formula: translatedQuestion,
+                     whyNote: "Natural language processed by Gemini 2.0 Flash."
+                 });
+             }
+          } else {
+             throw algError;
+          }
+        } catch (aiError: any) {
+          console.error("AI Fallback Error:", aiError.message?.substring(0, 200));
+          throw algError;
+        }
+      } else {
+        if (!apiKey && !isMatrixTopic) {
+            console.warn("AI Fallback skipped: GOOGLE_GENERATIVE_AI_API_KEY is missing in .env.local");
+        }
+        throw algError;
+      }
     }
 
-    const cleaned = text.substring(start, end + 1);
-    const parsed = JSON.parse(cleaned);
+    if (!solution) {
+      const topicContent = getTopicContent(topic);
+      if (topicContent) {
+          const exampleMatch = topicContent.examples.find((ex: any) => 
+              question.toLowerCase().includes(ex.question.toLowerCase()) || 
+              ex.question.toLowerCase().includes(question.toLowerCase())
+          );
+          
+          if (exampleMatch) {
+              solution = {
+                  theorem: topicContent.title,
+                  steps: exampleMatch.steps.map((s: any) => ({
+                      title: s.label,
+                      formula: s.formula,
+                      explanation: s.text || "Execution of mathematical logic.",
+                  })),
+                  finalAnswer: exampleMatch.answer
+              };
+          }
+      }
+    }
 
-    return NextResponse.json(parsed);
-  } catch (err: any) {
-    console.error("Simulator error:", err);
-    return NextResponse.json({ 
-        error: "Solver Engine Unavailable. " + (err.message || "Please check configuration.") 
-    }, { status: 500 });
-  }
-}
+    if (solution) return NextResponse.json(solution);
 
-function generateMockSolution(topic: string, question: string) {
-    // Generate a structured mock response for development
-    return {
-        theorem: topic.replace("-", " ").toUpperCase(),
+    // Final fallback
+    return NextResponse.json({
+        theorem: topic.replace(/-/g, " ").toUpperCase(),
         steps: [
             {
-                title: "Initialize Matrix",
-                formula: "\\begin{pmatrix} a & b & | & c \\\\ d & e & | & f \\end{pmatrix}",
-                explanation: "The system is converted into an augmented matrix form to begin the elimination process.",
-                whyNote: "Normalization allows us to standardise the pivot elements."
-            },
-            {
-                title: "Row Reduction",
-                formula: "R_2 \\to R_2 - (d/a)R_1",
-                explanation: "We apply elementary row operations to eliminate the coefficient below the first pivot.",
-                whyNote: "Elimination reduces the degree of freedom in the lower rows."
-            },
-            {
-                title: "Back Substitution",
-                formula: "x_n = b_n / a_{nn}",
-                explanation: "Starting from the bottom row, we solve for each variable sequentially.",
-                whyNote: "Upper triangular form allows for direct substitution."
+                title: "Input Not Recognized",
+                explanation: `The solver could not parse your input. Please use the expected formula format.`,
+                whyNote: "If testing word problems, ensure your Google API key is configured."
             }
         ],
-        finalAnswer: "x = 2, y = -1, z = 3"
-    };
+        finalAnswer: "Error processing input."
+    });
+
+  } catch (err: any) {
+      console.error("Simulator error:", err);
+      return NextResponse.json({
+          theorem: topic.replace(/-/g, " ").toUpperCase(),
+          steps: [
+              {
+                  title: "Solver Inference Error",
+                  explanation: `Error processing input: ${err.message || "Unknown error."}`,
+                  whyNote: "Ensure your formatting is strictly mathematical unless the AI API key is working."
+              }
+          ],
+          finalAnswer: "Parsing Error"
+      });
+  }
 }
 

@@ -12,6 +12,8 @@ import { ProgressTracker } from "@/components/lesson/ProgressTracker";
 import LiquidEther from "@/components/effects/LiquidEther";
 import SplitText from "@/components/effects/SplitText";
 import { Folder } from "@/components/effects/Folder";
+import 'katex/dist/katex.min.css';
+import { InlineMath, BlockMath } from 'react-katex';
 
 export default function TopicPage() {
   const params = useParams();
@@ -65,8 +67,30 @@ export default function TopicPage() {
                 topics={lesson.topics}
                 accentHex={lesson.accentHex}
               />
-              <div className="pt-8 border-t border-white/5">
-                <ProgressTracker topicSlug={topicSlug} accentHex={lesson.accentHex} />
+
+              <div className="pt-8 border-t border-white/5 space-y-6">
+                <div>
+                  <h4 className="text-sm font-bold text-white mb-2 font-mono uppercase tracking-wider opacity-70">Overview</h4>
+                  <p className="text-sm text-text-secondary leading-relaxed">
+                    {topic.plainEnglish}
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-xl relative overflow-hidden group border border-white/5">
+                  <div className="absolute inset-0 opacity-10" style={{ backgroundColor: lesson.accentHex }} />
+                  <span className="text-[10px] font-bold uppercase tracking-widest block mb-2 opacity-60" style={{ color: lesson.accentHex }}>Intuition</span>
+                  <p className="text-xs text-text-muted leading-relaxed relative z-10">{topic.intuition}</p>
+                </div>
+
+                <div className="pt-2">
+                  <ProgressTracker 
+                    topicSlug={topicSlug} 
+                    accentHex={lesson.accentHex} 
+                    onNavigate={(view) => {
+                      document.getElementById(`${view}-view`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }}
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -90,28 +114,105 @@ export default function TopicPage() {
                   textAlign="left"
                 />
               </div>
-              <p className="text-2xl text-text-secondary font-bold italic opacity-70 max-w-2xl leading-relaxed">
+              <p className="text-2xl text-text-secondary font-bold italic opacity-70 max-w-2xl leading-relaxed mb-8">
                 Unlock the mastery of {topic.title} through our interactive neural simulator and verified library.
               </p>
             </header>
 
-            {/* PRIORITY 1: Simulator Section (Now at the top) */}
-            <SimulatorSection
-              topicTitle={topic.title}
-              placeholder={topic.simulatorPlaceholder}
-              accentHex={lesson.accentHex}
-              topicSlug={topicSlug}
-            />
+            {/* Input Types Explanation */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pb-8">
+              <div className="p-5 rounded-xl bg-black/20 border border-white/5 transition-colors hover:border-white/10">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-2 h-2 rounded-full bg-blue-400/80" />
+                  <span className="text-xs font-bold text-white uppercase tracking-wider">Manual Form</span>
+                </div>
+                <p className="text-[11px] text-text-muted leading-relaxed">
+                  Use this for direct notation (e.g., <code className="text-white/60 bg-white/5 px-1 py-0.5 rounded font-mono">f(x) = x^2 on [0,2]</code>). Perfect for quick, rigorous mathematical evaluation.
+                </p>
+              </div>
+
+              <div className="p-5 rounded-xl bg-black/20 border border-white/5 transition-colors hover:border-white/10">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-2 h-2 rounded-full bg-purple-400/80" />
+                  <span className="text-xs font-bold text-white uppercase tracking-wider">Conversational</span>
+                </div>
+                <p className="text-[11px] text-text-muted leading-relaxed">
+                  Type naturally as you speak (e.g., &quot;verify rolles theorem for x squared&quot;). Ideal for translating engineering paragraphs directly.
+                </p>
+              </div>
+
+              <div className="p-5 rounded-xl bg-black/20 border border-white/5 transition-colors hover:border-white/10">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-2 h-2 rounded-full bg-emerald-400/80" />
+                  <span className="text-xs font-bold text-white uppercase tracking-wider">Matrix Grid</span>
+                </div>
+                <p className="text-[11px] text-text-muted leading-relaxed">
+                  A visual grid automatically available for linear algebra topics. Effortlessly adjust coefficients without rigid array syntax rules.
+                </p>
+              </div>
+            </div>
+
+            {/* PRIORITY 1: Simulator Section */}
+            <div id="simulator-view" className="scroll-mt-24">
+              <SimulatorSection
+                topicTitle={topic.title}
+                placeholder={topic.simulatorPlaceholder}
+                accentHex={lesson.accentHex}
+                topicSlug={topicSlug}
+              />
+            </div>
+
+            {/* NEW: Mathematical Foundations (Above Library) */}
+            <div className="space-y-8 pt-12">
+               <div className="flex items-center gap-4">
+                  <h3 className="text-3xl font-black text-white tracking-tight">Mathematical Foundation</h3>
+                  <div className="h-px flex-1 bg-white/5" />
+               </div>
+
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                 <div className="p-6 rounded-xl bg-black/40 border border-white/5 relative overflow-hidden">
+                   <div className="absolute top-0 left-0 w-1 h-full" style={{ backgroundColor: lesson.accentHex }} />
+                   <h4 className="text-[10px] font-bold uppercase tracking-widest text-text-muted mb-4 block">Formal Statement</h4>
+                   <div className="text-lg overflow-x-auto pb-2 custom-scrollbar">
+                     <BlockMath math={topic.formalStatement} />
+                   </div>
+                 </div>
+
+                 <div className="space-y-6">
+                   <div className="p-6 rounded-xl bg-[#0a0f12]/80 border border-white/5">
+                     <h4 className="text-[10px] font-bold uppercase tracking-widest text-text-muted mb-3 block">Required Conditions</h4>
+                     <ul className="space-y-2">
+                       {topic.conditions.map((condition, i) => (
+                         <li key={i} className="flex gap-2 text-sm text-text-secondary">
+                           <span style={{ color: lesson.accentHex }}>•</span> {condition}
+                         </li>
+                       ))}
+                     </ul>
+                   </div>
+
+                   <div className="p-6 rounded-xl bg-[#120a0a]/80 border border-red-500/10">
+                     <h4 className="text-[10px] font-bold uppercase tracking-widest text-red-400 mb-3 block">Common Mistakes & Pitfalls</h4>
+                     <ul className="space-y-2">
+                       {topic.commonMistakes.map((mistake, i) => (
+                         <li key={i} className="flex gap-2 text-sm text-text-secondary">
+                           <span className="text-red-500">⚠</span> {mistake}
+                         </li>
+                       ))}
+                     </ul>
+                   </div>
+                 </div>
+               </div>
+            </div>
 
             {/* PRIORITY 2: Library/Theory wrapped in Folder component */}
-            <div className="space-y-8">
+            <div id="library-view" className="space-y-8 scroll-mt-24 pt-12">
                <div className="flex items-center gap-4">
-                  <h3 className="text-3xl font-black text-white tracking-tight">Theory & Foundations</h3>
+                  <h3 className="text-3xl font-black text-white tracking-tight">Open Research Notes & Proofs</h3>
                   <div className="h-px flex-1 bg-white/5" />
                </div>
 
                <Folder 
-                 title="Open Research Notes & Proofs"
+                 title="Verified Step-by-Step Executions"
                  className="!bg-black/20"
                >
                  <div className="py-8">

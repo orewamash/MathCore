@@ -5,20 +5,25 @@ import { LessonsGrid } from "@/components/marketing/LessonsGrid";
 import { motion } from "framer-motion";
 import { BookOpen, Cpu, BarChart3 } from "lucide-react";
 
+import { useRouter } from "next/navigation";
+
 const features = [
   {
+    slug: "library",
     icon: BookOpen,
     title: "Complete Library",
     description: "Every concept explained in plain English with intuition, formulas, and worked examples.",
     accent: "#8BACFF",
   },
   {
+    slug: "simulator",
     icon: Cpu,
     title: "AI Simulator",
     description: "Type any maths problem — get a structured step-by-step solution with explanations.",
     accent: "#6EE7B7",
   },
   {
+    slug: "progress",
     icon: BarChart3,
     title: "Track Progress",
     description: "Mark topics as read and practiced. Know exactly where you stand before the exam.",
@@ -32,11 +37,14 @@ import MagicBento from "@/components/shared/MagicBento";
 import React from "react";
 
 export default function HomePage() {
+  const router = useRouter();
+
   const bentoFeatures = features.map((f, i) => ({
     title: f.title,
     description: f.description,
     label: "Core Capability",
     color: "#06080D",
+    onClick: () => router.push(`/features/${f.slug}`),
     icon: React.createElement(f.icon, {
       className: "w-6 h-6",
       style: { color: f.accent }

@@ -1,0 +1,22 @@
+﻿≡ƒÜÇ Starting Unit-by-Unit Mock Test (Round 2)...
+
+Testing Unit 1: LMVT (Train Problem)...
+Γ¥î FAILED: Parsing Error
+   Execution Step 0: Solver Inference Error
+   Error Detail: Error processing input: LMVT parsing error: Format: f(x) = <expr> on [a, b]
+-----------------------------------
+
+Testing Unit 2: Bernoulli (Charge Problem)...
+Γ¥î FAILED: Parsing Error
+   Execution Step 0: Solver Inference Error
+   Error Detail: Error processing input: Bernoulli Error: Invalid left hand side of assignment operator = (char 51)
+-----------------------------------
+
+Testing Unit 3: Euler's (Magnetic Field)...
+Γ£à SUCCESS: Verified: x f_x + y f_y = 1f. \text{ Degree: } 1
+-----------------------------------
+
+Testing Unit 3: Lagrange Multiplier (Machine Vision)...
+Γ£à SUCCESS: \text{Solve } \nabla f = \lambda \nabla g \text{ and the constraint to find optimal (x, y).}
+-----------------------------------
+

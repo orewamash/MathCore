@@ -1,7 +1,7 @@
 "use client";
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, RefreshCw, Cpu, Zap, Sparkles } from "lucide-react";
+import { Send, RefreshCw, Cpu, Zap, Sparkles, Info, X } from "lucide-react";
 import { StepCard } from "./StepCard";
 import { MathRenderer } from "@/components/shared/MathRenderer";
 import { LoadingDots } from "@/components/shared/LoadingDots";
@@ -32,7 +32,8 @@ export function SimulatorSection({ topicTitle, placeholder, accentHex, topicSlug
   const [solution, setSolution] = useState<Solution | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [mode, setMode] = useState<"text" | "matrix">("text");
+  const [mode, setMode] = useState<"text" | "matrix" | "english">("text");
+  const [showHelp, setShowHelp] = useState(false);
   const [matrixEntries, setMatrixEntries] = useState<string[][]>([
     ["", "", "", ""],
     ["", "", "", ""],
@@ -109,7 +110,7 @@ export function SimulatorSection({ topicTitle, placeholder, accentHex, topicSlug
       const res = await fetch("/api/simulator", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question, topic: topicSlug }),
+        body: JSON.stringify({ question, topic: topicSlug, mode }),
       });
       if (!res.ok) throw new Error("Solver failed. Please try again.");
       const data = await res.json();
@@ -138,21 +139,12 @@ export function SimulatorSection({ topicTitle, placeholder, accentHex, topicSlug
 
   return (
     <section id="simulator" className="relative py-12">
-      {/* Background glow for the section */}
+      {/* Decorative gradients */}
       <div 
         className="absolute -top-24 -left-24 w-96 h-96 rounded-full blur-[100px] opacity-10 pointer-events-none"
         style={{ background: accentHex }}
       />
 
-      {/* "Goated" decorative scribbles */}
-      <div className="absolute top-10 right-10 opacity-10 pointer-events-none select-none hidden lg:block">
-        <div className="font-new-day text-4xl text-white -rotate-12 mb-4">Calculus is Art.</div>
-        <div className="font-curls text-2xl text-blue-400 rotate-6 ml-10">∫ e^x dx = e^x + C</div>
-      </div>
-      <div className="absolute bottom-20 left-10 opacity-10 pointer-events-none select-none hidden lg:block">
-        <div className="font-pot text-3xl text-white rotate-12">Gauss was here.</div>
-        <div className="font-cuckoo text-5xl text-blue-500/50 -rotate-3 mt-4">GOATED</div>
-      </div>
 
       
       <div className="relative space-y-10">
@@ -177,7 +169,7 @@ export function SimulatorSection({ topicTitle, placeholder, accentHex, topicSlug
           </div>
 
           <div className="flex flex-wrap gap-4">
-            {isMatrixTopic && (
+            {isMatrixTopic ? (
               <div className="flex p-1 bg-white/5 rounded-2xl border border-white/10">
                 <button
                   onClick={() => setMode("text")}
@@ -192,6 +184,31 @@ export function SimulatorSection({ topicTitle, placeholder, accentHex, topicSlug
                   Matrix
                 </button>
               </div>
+            ) : (
+              <div className="flex p-1 bg-white/5 rounded-2xl border border-white/10">
+                <button
+                  onClick={() => setMode("text")}
+                  className={`px-6 py-2 rounded-xl text-sm font-black uppercase tracking-widest transition-all ${mode === "text" ? "bg-white/10 text-white shadow-lg" : "text-white/40 hover:text-white/60"}`}
+                >
+                  Standard
+                </button>
+                <button
+                  onClick={() => setMode("english")}
+                  className={`px-6 py-2 rounded-xl text-sm font-black uppercase tracking-widest transition-all ${mode === "english" ? "bg-blue-500/20 text-blue-300 shadow-lg" : "text-white/40 hover:text-white/60"}`}
+                >
+                  Conversational
+                </button>
+              </div>
+            )}
+            
+            {!isMatrixTopic && mode === "english" && (
+              <button
+                onClick={() => setShowHelp(true)}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500/20 transition-all"
+              >
+                <Info className="w-4 h-4" />
+                Language Guide
+              </button>
             )}
             
             {solution && (
@@ -435,6 +452,76 @@ export function SimulatorSection({ topicTitle, placeholder, accentHex, topicSlug
           )}
         </AnimatePresence>
       </div>
+      {/* Conversational Help Modal */}
+      <AnimatePresence>
+        {showHelp && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 sm:p-10">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowHelp(false)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-xl"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-2xl bg-[#0D1117] border border-white/10 rounded-[32px] overflow-hidden shadow-2xl"
+            >
+              <div className="flex items-center justify-between p-8 border-b border-white/5">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-blue-500/10 text-blue-400">
+                    <Sparkles className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white tracking-tight">Conversational Math Guide</h3>
+                    <p className="text-sm text-white/40 font-medium">Type math exactly how you speak it.</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setShowHelp(false)}
+                  className="p-2 rounded-full hover:bg-white/5 text-white/40 hover:text-white transition-all"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="p-8 max-h-[60vh] overflow-y-auto custom-scrollbar">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[
+                    { eng: "integral of / integrate", sym: "∫", ex: "integrate x squared" },
+                    { eng: "limits / with limits", sym: "Limits", ex: "limits 0 to pi" },
+                    { eng: "dow / del / partial", sym: "∂", ex: "dow u / dow x" },
+                    { eng: "verify / show / prove", sym: "Check", ex: "verify euler theorem for x^3" },
+                    { eng: "subject to / constraint", sym: "s.t", ex: "subject to x + y = 10" },
+                    { eng: "surface / function", sym: "f(x,y)", ex: "surface given by x^2 + y^2" },
+                    { eng: "differentiate / derivative / f'", sym: "d/dx", ex: "differentiate u where u = x^2" },
+                    { eng: "theta / delta / beta", sym: "θ / δ / β", ex: "tan(theta)" },
+                    { eng: "pi / e / tau (tow)", sym: "Constants", ex: "2 times pi" },
+                    { eng: "root of / sqrt", sym: "√", ex: "square root of x" },
+                    { eng: "squared / cubed", sym: "x² / x³", ex: "x cubed plus 5" },
+                  ].map((item, idx) => (
+                    <div key={idx} className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-white/10 transition-all group">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-blue-400/60 transition-all group-hover:text-blue-400">{item.eng}</span>
+                        <span className="text-lg font-bold text-white/80">{item.sym}</span>
+                      </div>
+                      <div className="text-xs font-mono text-white/30 italic">Example: "{item.ex}"</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="p-8 bg-blue-500/5 border-t border-white/5">
+                <p className="text-xs text-blue-300/60 leading-relaxed">
+                  <span className="font-bold text-blue-300">Pro Tip:</span> You can mix English and symbols freely! Our engine automatically normalizes your text before solving.
+                </p>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }

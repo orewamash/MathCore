@@ -1,0 +1,41 @@
+﻿≡ƒÜÇ Starting Unit-by-Unit Mock Test...
+
+Testing Unit 1: LMVT...
+Γ¥î FAILED: Parsing Error
+   Details: Error processing input: LMVT parsing error: Unexpected operator ) (char 2)
+-----------------------------------
+
+Testing Unit 1: Rolle's...
+Γ¥î FAILED: Parsing Error
+   Details: Error processing input: Unable to parse or solve this Rolle's Theorem question. Error: Unexpected operator ) (char 2)
+-----------------------------------
+
+Testing Unit 2: Bernoulli...
+Γ£à SUCCESS: \text{Apply alternating signs to } u^{(k)} \cdot v_{k+1} \text{ pairs and add } + C
+-----------------------------------
+
+Testing Unit 2: Double Integration...
+Γ£à SUCCESS: \text{Result} \approx 5840
+-----------------------------------
+
+Testing Unit 2: Triple Integration...
+Γ£à SUCCESS: Evaluate innermost ΓåÆ middle ΓåÆ outermost integral sequentially.
+-----------------------------------
+
+Testing Unit 3: Jacobian...
+Γ£à SUCCESS: J = r * (cos(theta) ^ 2 + sin(theta) ^ 2)
+-----------------------------------
+
+Testing Unit 3: Euler's...
+Γ¥î FAILED: Parsing Error
+   Details: Error processing input: Euler's Theorem: Invalid left hand side of assignment operator = (char 43)
+-----------------------------------
+
+Testing Unit 3: Lagrange Multiplier...
+Γ£à SUCCESS: \text{Solve } \nabla f = \lambda \nabla g \text{ and the constraint to find optimal (x, y).}
+-----------------------------------
+
+Testing Unit 4: Gauss-Jordan...
+Γ£à SUCCESS: x_{1} = 10000, x_{2} = 30000
+-----------------------------------
+

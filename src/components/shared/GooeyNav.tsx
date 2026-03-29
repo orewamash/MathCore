@@ -177,6 +177,7 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
             color: white;
             transition: color 0.3s ease;
             font-weight: 900;
+            font-size: 0.875rem;
             font-family: "Times New Roman", Times, serif;
             letter-spacing: -0.02em;
             text-transform: uppercase;

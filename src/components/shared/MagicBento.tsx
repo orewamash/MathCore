@@ -115,6 +115,7 @@ const ParticleCard: React.FC<{
     magnetismAnimationRef.current?.kill();
 
     particlesRef.current.forEach(particle => {
+      gsap.killTweensOf(particle); // Fix: Kill infinite yoyo animations to prevent heavy CPU usage and lag
       gsap.to(particle, {
         scale: 0,
         opacity: 0,
@@ -342,6 +343,8 @@ const GlobalSpotlight: React.FC<{
     spotlight.className = 'global-spotlight';
     spotlight.style.cssText = `
       position: fixed;
+      left: 0;
+      top: 0;
       width: 800px;
       height: 800px;
       border-radius: 50%;
@@ -409,9 +412,12 @@ const GlobalSpotlight: React.FC<{
         updateCardGlowProperties(cardElement, e.clientX, e.clientY, glowIntensity, spotlightRadius);
       });
 
+      // Hardware accelerated movement to prevent layout thrashing/lag
       gsap.to(spotlightRef.current, {
-        left: e.clientX,
-        top: e.clientY,
+        x: e.clientX,
+        y: e.clientY,
+        xPercent: -50,
+        yPercent: -50,
         duration: 0.1,
         ease: 'power2.out'
       });
@@ -645,11 +651,11 @@ const MagicBento: React.FC<BentoProps> = ({
                 onClick={card.onClick}
               >
                 <div className="card__header flex justify-between gap-3 relative text-white items-start">
-                  <span className="card__label px-3 py-1 bg-white/5 rounded-full text-xs font-black uppercase tracking-widest text-white/50 font-pot">{card.label}</span>
+                  <span className="card__label px-3 py-1 bg-white/5 rounded-full text-xs font-black uppercase tracking-widest text-white/50">{card.label}</span>
                   {card.icon && <div className="p-2 bg-white/5 rounded-xl">{card.icon}</div>}
                 </div>
                 <div className="card__content flex flex-col relative text-white">
-                  <h3 className={`card__title font-black text-2xl m-0 mb-2 tracking-tight ${textAutoHide ? 'text-clamp-1' : ''} font-cuckoo`}>
+                  <h3 className={`card__title font-black text-2xl m-0 mb-2 tracking-tight ${textAutoHide ? 'text-clamp-1' : ''}`}>
                     {card.title}
                   </h3>
 

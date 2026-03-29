@@ -1,0 +1,22 @@
+﻿≡ƒÉ₧ Starting Mock Bug Test...
+
+Testing Zero Pivot (LU Decomposition)...
+Γ£à CAUGHT: Parsing Error
+-----------------------------------
+
+Testing Non-Square Matrix (Eigen)...
+Γ£à CAUGHT: Parsing Error
+-----------------------------------
+
+Testing Garbage Input...
+Γ£à CAUGHT: Parsing Error
+-----------------------------------
+
+Testing Divide by Zero (Calculus)...
+ΓÜá∩╕Å UNCAUGHT: Returned \text{There exists } c \in (1, 2) \text{ such that } f'(c) = -Infinity.
+-----------------------------------
+
+Testing 4x4 Matrix (Unsupported)...
+Γ£à CAUGHT: Parsing Error
+-----------------------------------
+

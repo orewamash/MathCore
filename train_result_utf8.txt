@@ -1,0 +1,5 @@
+﻿≡ƒÜÇ Testing exact user problem (multi-line word problem)...
+
+Γ£à SUCCESS!
+   Final Answer: c \approx 1.5003 \in (0, 3)
+   Steps generated: 5
