@@ -1,36 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MathCore
+
+A premium Next.js platform for **Engineering Mathematics 1** that pairs a complete theory **Library** with an **AI Simulator** for step-by-step problem solving. Spanning five modules — from Differential Calculus to Eigen Analysis — with a sleek, color-coded dark design, KaTeX-rendered math, and a fully offline algorithmic solver engine.
+
+## Modules
+
+| Module | Accent | Topics |
+|--------|--------|--------|
+| Differential Calculus | `#A78BFA` | Rolle's Theorem, Lagrange Mean Value Theorem (LMVT) |
+| Integral Calculus | `#6EE7B7` | Integration by Parts, Bernoulli's Formula, Double Integration, Triple Integration |
+| Multivariable Calculus | `#F47C7C` | Euler's Theorem, Jacobian, Maxima & Minima of Two Variables, Lagrange Multiplier |
+| Linear Systems | `#8BACFF` | Gauss Elimination, Gauss-Jordan Method, LU Decomposition |
+| Eigen Analysis | `#F0C27A` | Eigenvalues, Eigenvectors, Cayley-Hamilton Theorem |
+
+Each topic page combines three layers:
+
+- **Simulator** — type a problem in plain text, conversational English, or a visual matrix grid and get a step-by-step solution with KaTeX-rendered formulas and explanations.
+- **Mathematical Foundation** — the formal statement, required conditions, geometric/physical intuition, and a "Common Mistakes & Pitfalls" panel.
+- **Library** — plain-English theory with collapsible worked examples.
+
+## The Simulator
+
+The solver engine is **deterministic-first**: every topic has a strict rule-based solver built on `mathjs`. The AI never produces the answer — it only translates.
+
+1. A rule-based solver (`solveRollesTheorem`, `solveLMVT`, `solveGaussJordan`, `solveEigenvalues`, ...) parses your input directly.
+2. If parsing fails, **Google Gemini 2.0 Flash** translates a conversational word problem (e.g. "verify rolles theorem for x squared") into a normalized math string, and the algorithmic solver re-runs.
+3. Otherwise the input is matched against curated worked examples.
+
+Every step is returned as `{ theorem, steps: [{ title, formula?, explanation, whyNote? }], finalAnswer }` with all formulas as LaTeX for KaTeX.
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 16 (App Router), React 19, TypeScript |
+| AI | Vercel AI SDK v6 + Google Gemini 2.0 Flash (`@ai-sdk/google`) |
+| Math rendering | KaTeX (`react-katex`) |
+| Solver engine | mathjs |
+| 3D / WebGL | three.js, OGL (galaxy & orb backgrounds) |
+| Animation | GSAP + Framer Motion + Lenis (smooth scroll) |
+| Styling | Tailwind CSS v4, shadcn-style Radix / Base UI primitives |
+| State | Zustand (persisted progress via localStorage) |
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+git clone https://github.com/orewamash/MathCore.git
+cd MathCore
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Environment variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Create `.env.local`:
 
-## Learn More
+```bash
+# Optional: enables AI translation of conversational word problems in the simulator.
+# Matrix/linear-algebra topics still solve algorithmically without it.
+GOOGLE_GENERATIVE_AI_API_KEY=your_key_here
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Scripts
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start the dev server |
+| `npm run build` | Production build |
+| `npm run start` | Start the production server |
+| `npm run lint` | Run ESLint |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Pages
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `/` — marketing homepage with the module grid and feature cards
+- `/features/[slug]` — deep-dives into the Library, Simulator, and Progress features
+- `/lessons` — the five "Mastery Modules"
+- `/lessons/[slug]/[topic]` — topic pages with Simulator, Foundation, and Library
+- `/search` — client-side full-text search across every topic
